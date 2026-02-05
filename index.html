@@ -106,7 +106,7 @@
         </header>
         <div class="container login-wrapper">
             <div class="login-section">
-                <h2>👋 Bem-vinda, Estudante</h2>
+                <h2>👋 Bem-vinda, estudante</h2>
                 <form id="login-form">
                     <div class="form-group">
                         <label for="matricula-input">Número de Matrícula</label>
@@ -563,14 +563,14 @@
         }
 
        window.resetSystem = function() {
-            // 1. Pede a senha de segurança
-            const senhaConfirmacao = prompt("⚠️ ZONA DE PERIGO ⚠️\n\nEsta ação apagará TODOS os dados do servidor permanentemente.\n\nPara confirmar, digite a senha da coordenação:");
+            // 1. Pede a senha de segurança ESPECÍFICA DE RESET
+            const senhaConfirmacao = prompt("⚠️ ZONA DE PERIGO ⚠️\n\nEsta ação apagará TODOS os dados do servidor permanentemente.\n\nPara confirmar, digite a SENHA DE RESET (senha de segurança):");
 
             // 2. Se a pessoa clicar em "Cancelar", para tudo.
             if (senhaConfirmacao === null) return;
 
-            // 3. Verifica se a senha está certa (usa a mesma ADMIN_PASSWORD lá de cima)
-            if (senhaConfirmacao === ADMIN_PASSWORD) {
+            // 3. Verifica se a senha é a de RESET (RESET_PASSWORD = "fire")
+            if (senhaConfirmacao === RESET_PASSWORD) {
                 // Senha correta: faz o backup e deleta
                 alert("Senha confirmada! O download do backup iniciará agora.");
                 exportCSV();
@@ -583,7 +583,7 @@
                 }, 1500);
             } else {
                 // Senha errada
-                alert("⛔ Senha incorreta! Nenhuma ação foi realizada.");
+                alert("⛔ Senha incorreta! O reset foi cancelado.");
             }
         }
 
@@ -649,6 +649,7 @@
 </body>
 
 </html>
+
 
 
 
