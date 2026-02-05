@@ -245,7 +245,8 @@
 
         const COTAS = { 1: 10, 2: 6, 3: 4 };
         const LIMITE_TOTAL_BASE = 19;
-        const ADMIN_PASSWORD = "ifb2026yyz"; 
+        const ADMIN_PASSWORD = "ifb2026yyz";
+        const RESET_PASSWORD = "fire";   // Senha para DELETAR tudo
 
         // ESTADO GLOBAL
         let inscricoes = []; 
@@ -500,13 +501,28 @@
             link.click();
         }
 
-        window.resetSystem = function() {
-            if (confirm("⚠️ ATENÇÃO: Isso apagará TODOS os dados do servidor. O download iniciará antes. Confirma?")) {
+       window.resetSystem = function() {
+            // 1. Pede a senha de segurança
+            const senhaConfirmacao = prompt("⚠️ ZONA DE PERIGO ⚠️\n\nEsta ação apagará TODOS os dados do servidor permanentemente.\n\nPara confirmar, digite a senha da coordenação:");
+
+            // 2. Se a pessoa clicar em "Cancelar", para tudo.
+            if (senhaConfirmacao === null) return;
+
+            // 3. Verifica se a senha está certa (usa a mesma ADMIN_PASSWORD lá de cima)
+            if (senhaConfirmacao === ADMIN_PASSWORD) {
+                // Senha correta: faz o backup e deleta
+                alert("Senha confirmada! O download do backup iniciará agora.");
                 exportCSV();
+                
+                // Espera 1 segundo para garantir o download e apaga
                 setTimeout(() => {
                     deleteAllData();
-                    alert("Sistema resetado.");
-                }, 1000);
+                    alert("Sistema resetado com sucesso. O banco de dados está vazio.");
+                    location.reload(); // Recarrega a página para limpar a tabela visualmente
+                }, 1500);
+            } else {
+                // Senha errada
+                alert("⛔ Senha incorreta! Nenhuma ação foi realizada.");
             }
         }
 
@@ -544,4 +560,5 @@
 </body>
 
 </html>
+
 
