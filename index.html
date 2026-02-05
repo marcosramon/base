@@ -110,7 +110,7 @@
                 <form id="login-form">
                     <div class="form-group">
                         <label for="matricula-input">Número de Matrícula</label>
-                        <input type="number" id="matricula-input" placeholder="Digite sua matrícula (Ex: 12345)" required autofocus>
+                        <input type="number" id="matricula-input" placeholder="Digite sua matrícula (Ex: 123456123456)" required autofocus>
                     </div>
                     <div id="login-error" class="status-message status-error hidden"></div>
                     <button type="submit" class="btn btn-primary">Acessar Sistema</button>
@@ -453,20 +453,49 @@
         document.getElementById('login-form').addEventListener('submit', (e) => {
             e.preventDefault();
             const matInput = document.getElementById('matricula-input').value.trim();
+
+            // 1. PRIMEIRO: Verifica se é a senha da Coordenação
+            // (Adicionei isso para garantir que você consiga acessar o painel)
+            if (typeof ADMIN_PASSWORD !== 'undefined' && matInput === ADMIN_PASSWORD) {
+                document.getElementById('login-screen').classList.add('hidden');
+                document.getElementById('admin-screen').classList.remove('hidden');
+                // Tenta renderizar o painel se a função existir
+                if (typeof renderAdminPanel === 'function') renderAdminPanel();
+                return;
+            }
+
+            // 2. SEGUNDO: Verifica se é uma Estudante
             const alunaEncontrada = DATABASE_ALUNAS.find(a => a.matricula === matInput);
 
             if (alunaEncontrada) {
+                // SUCESSO: Aluna encontrada
                 currentUser = alunaEncontrada;
                 document.getElementById('login-error').classList.add('hidden');
+                
+                // Preenche os dados visuais
                 document.getElementById('user-avatar').textContent = currentUser.nome.charAt(0);
                 document.getElementById('user-name-display').innerHTML = `${currentUser.nome} <span class="ano-badge ano-${currentUser.ano}">${currentUser.ano}º Ano</span>`;
                 
-                showScreen('student-screen');
-                updateUserStatus();
-                renderStudentBases();
+                // Troca de tela e atualiza
+                if (typeof showScreen === 'function') showScreen('student-screen');
+                if (typeof updateUserStatus === 'function') updateUserStatus();
+                
+                // Nota: Verifique se sua função chama 'renderStudentBases' ou 'renderBases'
+                // Mantive conforme seu snippet:
+                if (typeof renderStudentBases === 'function') {
+                    renderStudentBases();
+                } else if (typeof renderBases === 'function') {
+                    renderBases();
+                }
+
             } else {
-                document.getElementById('login-error').textContent = "Matrícula não encontrada. Tente: 12345, 23456, 34567 ou 45678.";
-                document.getElementById('login-error').classList.remove('hidden');
+                // 3. ERRO: Matrícula não encontrada (MENSAGEM ATUALIZADA)
+                const errorDiv = document.getElementById('login-error');
+                
+                // Usando innerHTML para permitir quebra de linha <br>
+                errorDiv.innerHTML = "❌ <strong>Matrícula não encontrada!</strong><br>Acesse o SUAP Ensino ou procure a coordenação, caso não saiba o número de sua matrícula.";
+                
+                errorDiv.classList.remove('hidden');
             }
         });
 
@@ -588,10 +617,39 @@
         // INICIA ESCUTA DO BANCO
         startListeningToDatabase();
 
+        // ============================================
+        // 🛡️ SISTEMA DE AUTO-LOGOUT (INATIVIDADE)
+        // ============================================
+        let tempoInatividade;
+        const LIMITE_MINUTOS = 2; 
+        const TEMPO_LIMITE = LIMITE_MINUTOS * 60 * 1000; // Converte para milissegundos
+
+        function resetarTimer() {
+            clearTimeout(tempoInatividade);
+            
+            tempoInatividade = setTimeout(() => {
+                // Tenta desconectar do Firebase antes de sair
+                try { goOffline(db); } catch(e) {} 
+
+                // Redireciona para o site do IFB
+                alert("⏳ Sessão expirada por inatividade.\nVocê será redirecionada.");
+                window.location.href = "https://www.ifb.edu.br";
+            }, TEMPO_LIMITE);
+        }
+
+        // Monitora qualquer movimento para saber que a pessoa ainda está ali
+        ['mousemove', 'keypress', 'click', 'scroll', 'touchstart'].forEach(evento => {
+            document.addEventListener(evento, resetarTimer);
+        });
+
+        // Inicia o contador assim que a página carrega
+        resetarTimer();
+
     </script>
 </body>
 
 </html>
+
 
 
 
