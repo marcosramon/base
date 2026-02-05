@@ -223,6 +223,7 @@
         // Importa as funções que você precisa do SDK (Versão 12.9.0)
         import { initializeApp } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-app.js";
         import { getDatabase, ref, onValue, set, remove, get } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-database.js";
+        import { DATABASE_ALUNAS, BASES_CONFIG, COTAS, LIMITE_TOTAL_BASE } from './dados.js';
 
         // ============================================
         // SUAS CONFIGURAÇÕES (JÁ ATUALIZADAS)
@@ -244,31 +245,7 @@
         // ============================================
         // DADOS DO SISTEMA
         // ============================================
-        const DATABASE_ALUNAS = [
-            { matricula: "12345", nome: "Jordana Eid", ano: 1 },
-            { matricula: "23456", nome: "Marcos Ramon", ano: 1 },
-            { matricula: "34567", nome: "Alice Watson", ano: 2 },
-            { matricula: "45678", nome: "Glauco Feijó", ano: 3 },
-            { matricula: "00001", nome: "Pessoa 1", ano: 3 },
-            { matricula: "00002", nome: "Pessoa 2", ano: 3 },
-            { matricula: "00003", nome: "Pessoa 3", ano: 3 },
-            { matricula: "00004", nome: "Pessoa 4", ano: 3 },
-        ];
 
-        const BASES_CONFIG = [
-            { id: 1, nome: "Base 1", docente: "Profª. Alice" },
-            { id: 2, nome: "Base 2", docente: "Prof. Glauco" },
-            { id: 3, nome: "Base 3", docente: "Profª. Jordana" },
-            { id: 4, nome: "Base 4", docente: "Profª. Sharon" },
-            { id: 5, nome: "Base 5", docente: "Profª. Luciana" },
-            { id: 6, nome: "Base 6", docente: "Prof. Washington" },
-            { id: 7, nome: "Base 7", docente: "Profª. Izabel" },
-            { id: 8, nome: "Base 8", docente: "Prof. Gustavo" },
-            { id: 9, nome: "Base 9", docente: "Prof. João" },
-        ];
-
-        const COTAS = { 1: 10, 2: 6, 3: 4 };
-        const LIMITE_TOTAL_BASE = 19;
         const ADMIN_PASSWORD = "ifb2026yyz";
         const RESET_PASSWORD = "fire";   // Senha para DELETAR tudo
 
@@ -584,6 +561,7 @@
 </body>
 
 </html>
+
 
 
 
