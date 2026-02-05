@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Seleção de Bases - EMI Eventos | IFB</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Fraunces:wght@600;700&display=swap" rel="stylesheet">
+    <style>
+        /* CSS / ESTILO VISUAL */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root { --verde-ifb: #1B5E20; --verde-claro: #4CAF50; --verde-hover: #2E7D32; --dourado: #F9A825; --bg-principal: #FAFDF7; --bg-card: #FFFFFF; --texto-principal: #1a1a1a; --texto-secundario: #555; --borda: #E0E0E0; --sombra: 0 4px 20px rgba(27, 94, 32, 0.08); --erro: #c62828; --sucesso: #2e7d32; }
+        body { font-family: 'DM Sans', sans-serif; background: var(--bg-principal); color: var(--texto-principal); min-height: 100vh; line-height: 1.6; }
+        .container { max-width: 1200px; margin: 0 auto; padding: 2rem; }
+        header { background: linear-gradient(135deg, var(--verde-ifb) 0%, #004d40 100%); padding: 2rem 1rem; text-align: center; color: white; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        .logo-container { margin-bottom: 1rem; display: flex; justify-content: center; }
+        .logo-img { max-height: 80px; width: auto; background: white; padding: 5px; border-radius: 8px; } 
+        header h1 { font-family: 'Fraunces', serif; font-size: 1.8rem; margin-bottom: 0.5rem; letter-spacing: -0.5px; }
+        header p { opacity: 0.9; font-size: 1rem; font-weight: 300; }
+        .login-wrapper { display: flex; justify-content: center; align-items: center; min-height: 60vh; }
+        .login-section { width: 100%; max-width: 420px; background: var(--bg-card); padding: 2.5rem; border-radius: 16px; box-shadow: var(--sombra); margin-top: -3rem; position: relative; z-index: 10; }
+        .login-section h2 { font-family: 'Fraunces', serif; color: var(--verde-ifb); margin-bottom: 1.5rem; font-size: 1.5rem; text-align: center; }
+        .form-group { margin-bottom: 1.5rem; }
+        .form-group label { display: block; margin-bottom: 0.5rem; font-weight: 600; color: var(--texto-secundario); font-size: 0.9rem; }
+        .form-group input, .form-group select { width: 100%; padding: 1rem; border: 2px solid var(--borda); border-radius: 10px; font-size: 1rem; font-family: inherit; transition: all 0.2s; }
+        .form-group input:focus { outline: none; border-color: var(--verde-claro); box-shadow: 0 0 0 4px rgba(76, 175, 80, 0.1); }
+        .btn { display: flex; align-items: center; justify-content: center; gap: 0.5rem; padding: 1rem 1.5rem; border: none; border-radius: 10px; font-size: 1rem; font-weight: 600; cursor: pointer; font-family: inherit; transition: transform 0.1s, background 0.2s; width: 100%; }
+        .btn:active { transform: scale(0.98); }
+        .btn-primary { background: var(--verde-ifb); color: white; }
+        .btn-primary:hover { background: var(--verde-hover); }
+        .btn-outline { background: transparent; border: 2px solid var(--verde-ifb); color: var(--verde-ifb); margin-top: 1rem; font-size: 0.9rem; }
+        .btn-secondary { background: var(--dourado); color: #37474F; }
+        .btn-danger { background: var(--erro); color: white; }
+        .dashboard-header { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; margin-bottom: 2rem; padding: 1.5rem; background: var(--bg-card); border-radius: 12px; box-shadow: var(--sombra); }
+        .user-info { display: flex; align-items: center; gap: 1rem; }
+        .user-avatar { width: 48px; height: 48px; background: linear-gradient(135deg, var(--verde-ifb), var(--verde-claro)); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; font-size: 1.2rem; flex-shrink: 0; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        .user-details h3 { font-size: 1.1rem; font-weight: 700; color: var(--texto-principal); }
+        .user-details span { font-size: 0.85rem; color: var(--texto-secundario); display: block; }
+        .ano-badge { display: inline-block; padding: 0.2rem 0.6rem; border-radius: 4px; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; margin-left: 0.5rem; vertical-align: middle; }
+        .ano-1 { background: #E3F2FD; color: #1565C0; }
+        .ano-2 { background: #FFF3E0; color: #E65100; }
+        .ano-3 { background: #F3E5F5; color: #7B1FA2; }
+        .bases-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.5rem; padding-bottom: 2rem; }
+        .base-card { background: var(--bg-card); border-radius: 16px; overflow: hidden; box-shadow: var(--sombra); transition: transform 0.2s; border: 2px solid transparent; display: flex; flex-direction: column; }
+        .base-card:hover { transform: translateY(-4px); box-shadow: 0 8px 25px rgba(0,0,0,0.1); }
+        .base-card.selected { border-color: var(--verde-claro); background: #f1f8e9; }
+        .base-card.unavailable { opacity: 0.7; filter: grayscale(0.8); pointer-events: none; }
+        .base-card-header { background: linear-gradient(135deg, var(--verde-ifb) 0%, var(--verde-hover) 100%); padding: 1.25rem; color: white; }
+        .base-card-header h3 { font-family: 'Fraunces', serif; font-size: 1.25rem; margin-bottom: 0.25rem; }
+        .base-card-body { padding: 1.25rem; flex-grow: 1; display: flex; flex-direction: column; }
+        .cotas-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.5rem; margin-bottom: 1.5rem; }
+        .cota-item { text-align: center; padding: 0.5rem; border-radius: 8px; background: #f5f5f5; font-size: 0.8rem; border: 1px solid transparent; }
+        .cota-item strong { display: block; font-size: 1rem; margin-top: 0.2rem; }
+        .cota-item.esgotada { background: #ffebee; color: var(--erro); border-color: #ffcdd2; }
+        .cota-item.disponivel { background: #e8f5e9; color: var(--sucesso); border-color: #c8e6c9; font-weight: 600; }
+        .admin-header { background: #263238; color: white; padding: 1.5rem; }
+        .admin-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 2rem; }
+        .stat-card { background: white; padding: 1.5rem; border-radius: 10px; box-shadow: var(--sombra); text-align: center; }
+        .stat-number { font-size: 2.5rem; font-weight: bold; color: var(--verde-ifb); font-family: 'Fraunces', serif; }
+        .table-container { overflow-x: auto; margin-top: 1rem; border-radius: 10px; border: 1px solid var(--borda); background: white; }
+        table { width: 100%; border-collapse: collapse; min-width: 700px; }
+        th, td { padding: 1rem; text-align: left; border-bottom: 1px solid var(--borda); }
+        th { background: #f5f5f5; font-weight: 700; font-size: 0.8rem; text-transform: uppercase; color: var(--texto-secundario); }
+        .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.6); display: flex; align-items: center; justify-content: center; z-index: 1000; padding: 1rem; backdrop-filter: blur(4px); }
+        .modal { background: var(--bg-card); border-radius: 16px; max-width: 400px; width: 100%; box-shadow: 0 10px 40px rgba(0,0,0,0.2); animation: slideUp 0.3s ease; }
+        @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        .hidden { display: none !important; }
+        .status-message { padding: 1rem; border-radius: 8px; margin-bottom: 1rem; display: flex; align-items: flex-start; gap: 0.8rem; font-size: 0.95rem; line-height: 1.4; }
+        .status-error { background: #ffebee; color: var(--erro); border: 1px solid #ffcdd2; }
+        .status-success { background: #e8f5e9; color: var(--sucesso); border: 1px solid #c8e6c9; }
+        @media (max-width: 768px) { .container { padding: 1rem; } header h1 { font-size: 1.5rem; } .bases-grid { grid-template-columns: 1fr; } .btn { width: 100%; } }
+    </style>
+</head>
+<body>
+    
+    <div id="login-screen">
+        <header>
+            <div class="logo-container">
+                <img src="logo-ifb.png" alt="Logo IFB" class="logo-img" onerror="this.style.display='none'">
+            </div>
+            <h1>Seleção de Bases</h1>
+            <p>Ensino Médio Integrado em Eventos</p>
+        </header>
+        <div class="container login-wrapper">
+            <div class="login-section">
+                <h2>👋 Bem-vinda, Estudante</h2>
+                <form id="login-form">
+                    <div class="form-group">
+                        <label for="matricula-input">Número de Matrícula</label>
+                        <input type="number" id="matricula-input" placeholder="Digite sua matrícula (Ex: 12345)" required autofocus>
+                    </div>
+                    <div id="login-error" class="status-message status-error hidden"></div>
+                    <button type="submit" class="btn btn-primary">Acessar Sistema</button>
+                </form>
+                <div style="text-align: center; margin-top: 2rem; border-top: 1px solid #eee; padding-top: 1.5rem;">
+                    <p style="font-size: 0.85rem; color: #777; margin-bottom: 0.5rem;">Área Restrita</p>
+                    <button id="btn-admin-login" class="btn btn-outline" style="font-size: 0.85rem; padding: 0.6rem;">🔐 Acesso da Coordenação</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="student-screen" class="hidden">
+        <header style="padding: 1.5rem; text-align: left; display: flex; align-items: center; justify-content: space-between;">
+            <div>
+                <h1 style="font-size: 1.2rem; margin:0;">Seleção de Bases</h1>
+                <p style="font-size: 0.9rem;">IFB Brasília</p>
+            </div>
+        </header>
+        <div class="container">
+            <div class="dashboard-header">
+                <div class="user-info">
+                    <div class="user-avatar" id="user-avatar">?</div>
+                    <div class="user-details">
+                        <h3 id="user-name-display">Nome da Estudante</h3>
+                        <span id="user-status">Aguardando seleção...</span>
+                    </div>
+                </div>
+                <button id="btn-logout" class="btn btn-outline" style="margin-top: 0; width: auto;">Sair</button>
+            </div>
+
+            <div id="selection-message" class="status-message status-success hidden">
+                <div style="font-size: 1.5rem;">🎉</div>
+                <div id="selection-text"></div>
+            </div>
+
+            <h2 style="font-family: Fraunces, serif; color: var(--verde-ifb); margin: 2rem 0 1rem;">Bases Disponíveis para Você</h2>
+            <div id="loading-indicator" style="text-align: center; padding: 2rem; color: #666;">Carregando vagas em tempo real...</div>
+            <div class="bases-grid hidden" id="bases-grid"></div>
+        </div>
+    </div>
+
+    <div id="admin-screen" class="hidden">
+        <header class="admin-header">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <h1>Painel da Coordenação</h1>
+                <button id="btn-admin-logout" class="btn btn-outline" style="color: white; border-color: rgba(255,255,255,0.3); width: auto; margin:0;">Sair</button>
+            </div>
+        </header>
+        <div class="container">
+            <div class="admin-stats">
+                <div class="stat-card">
+                    <div class="stat-number" id="admin-total">0</div>
+                    <div style="font-size: 0.9rem; color: #666;">Total de Inscritas</div>
+                </div>
+                <div class="stat-card" style="display: flex; flex-direction: column; justify-content: center; gap: 0.5rem;">
+                    <button id="btn-export" class="btn btn-primary">📥 Baixar Excel (CSV)</button>
+                    <button id="btn-reset" class="btn btn-danger" style="font-size: 0.9rem;">⚠️ Resetar Sistema (Com Backup)</button>
+                </div>
+            </div>
+            <div style="background: white; padding: 2rem; border-radius: 16px; box-shadow: var(--sombra);">
+                <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; margin-bottom: 1.5rem;">
+                    <h3 style="color: var(--verde-ifb); font-family: Fraunces, serif;">Lista de Presença</h3>
+                    <select id="filtro-base" style="padding: 0.5rem; border-radius: 8px; border: 1px solid var(--borda);">
+                        <option value="">Todas as Bases</option>
+                    </select>
+                </div>
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Base</th>
+                                <th>Ano</th>
+                                <th>Matrícula</th>
+                                <th>Nome da Estudante</th>
+                                <th>Data/Hora</th>
+                                <th>Ação</th>
+                            </tr>
+                        </thead>
+                        <tbody id="students-table"></tbody>
+                    </table>
+                </div>
+                <p id="empty-msg" class="hidden" style="text-align: center; padding: 2rem; color: #999;">Nenhuma inscrição realizada ainda.</p>
+            </div>
+        </div>
+    </div>
+
+    <div id="admin-modal" class="modal-overlay hidden">
+        <div class="modal">
+            <div style="padding: 1.5rem; border-bottom: 1px solid var(--borda);">
+                <h3 style="font-family: Fraunces, serif; color: var(--verde-ifb);">Acesso Restrito</h3>
+            </div>
+            <form id="admin-form" style="padding: 1.5rem;">
+                <div class="form-group">
+                    <label>Senha da Coordenação</label>
+                    <input type="password" id="admin-password" placeholder="Digite a senha" required>
+                </div>
+                <div id="admin-error" class="status-message status-error hidden">Senha incorreta</div>
+                <div style="display: flex; gap: 1rem; margin-top: 1rem;">
+                    <button type="button" id="btn-cancel-admin" class="btn btn-secondary" style="margin-top:0;">Voltar</button>
+                    <button type="submit" class="btn btn-primary">Entrar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script type="module">
+        // Importa as funções que você precisa do SDK (Versão 12.9.0)
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-app.js";
+        import { getDatabase, ref, onValue, set, remove, get } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-database.js";
+
+        // ============================================
+        // SUAS CONFIGURAÇÕES (JÁ ATUALIZADAS)
+        // ============================================
+        const firebaseConfig = {
+            apiKey: "AIzaSyCmhqo-oO4ynkpjK87PvfvHor-eH4jZyvQ",
+            authDomain: "base-2026---emi-eventos.firebaseapp.com",
+            databaseURL: "https://base-2026---emi-eventos-default-rtdb.firebaseio.com",
+            projectId: "base-2026---emi-eventos",
+            storageBucket: "base-2026---emi-eventos.firebasestorage.app",
+            messagingSenderId: "668654269025",
+            appId: "1:668654269025:web:08f06edb0ec48182eab020"
+        };
+
+        // Inicializa Firebase
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app); // Inicializa o Banco de Dados também
+
+        // ============================================
+        // DADOS DO SISTEMA
+        // ============================================
+        const DATABASE_ALUNAS = [
+            { matricula: "12345", nome: "Jordana Eid", ano: 1 },
+            { matricula: "23456", nome: "Marcos Ramon", ano: 1 },
+            { matricula: "34567", nome: "Alice Watson", ano: 2 },
+            { matricula: "45678", nome: "Glauco Feijó", ano: 3 }
+        ];
+
+        const BASES_CONFIG = [
+            { id: 1, nome: "Base 1", docente: "Profa. Alice" },
+            { id: 2, nome: "Base 2", docente: "Prof. Glauco" },
+            { id: 3, nome: "Base 3", docente: "Profa. Jordana" },
+            { id: 4, nome: "Base 4", docente: "Profa. Ana" },
+            { id: 5, nome: "Base 5", docente: "Profa. Maria" },
+            { id: 6, nome: "Base 6", docente: "Profa. Carla" },
+            { id: 7, nome: "Base 7", docente: "Profa. Beatriz" },
+            { id: 8, nome: "Base 8", docente: "Profa. Diana" },
+            { id: 9, nome: "Base 9", docente: "Profa. Elena" },
+        ];
+
+        const COTAS = { 1: 10, 2: 6, 3: 4 };
+        const LIMITE_TOTAL_BASE = 19;
+        const ADMIN_PASSWORD = "ifb"; 
+
+        // ESTADO GLOBAL
+        let inscricoes = []; 
+        let currentUser = null;
+
+        // ============================================
+        // CONEXÃO COM O BANCO EM TEMPO REAL
+        // ============================================
+        
+        function startListeningToDatabase() {
+            const inscricoesRef = ref(db, 'inscricoes');
+            onValue(inscricoesRef, (snapshot) => {
+                const data = snapshot.val();
+                if (data) {
+                    inscricoes = Object.values(data);
+                } else {
+                    inscricoes = [];
+                }
+                
+                if (!document.getElementById('student-screen').classList.contains('hidden')) {
+                    renderStudentBases();
+                    updateUserStatus();
+                }
+                if (!document.getElementById('admin-screen').classList.contains('hidden')) {
+                    renderAdminScreen();
+                }
+
+                document.getElementById('loading-indicator').classList.add('hidden');
+                document.getElementById('bases-grid').classList.remove('hidden');
+            });
+        }
+
+        function saveInscricao(novaInscricao) {
+            set(ref(db, 'inscricoes/' + novaInscricao.matricula), novaInscricao)
+                .then(() => {
+                    alert('Inscrição realizada com sucesso!');
+                })
+                .catch((error) => {
+                    alert('Erro ao salvar: ' + error.message);
+                });
+        }
+
+        function deleteInscricao(matricula) {
+            remove(ref(db, 'inscricoes/' + matricula));
+        }
+
+        function deleteAllData() {
+            remove(ref(db, 'inscricoes'));
+        }
+
+        // ============================================
+        // LÓGICA DE INTERFACE
+        // ============================================
+
+        function getInscricaoAtual() {
+            if (!currentUser) return null;
+            return inscricoes.find(i => i.matricula == currentUser.matricula); 
+        }
+
+        function getVagasPorBase(baseId) {
+            const inscritosNaBase = inscricoes.filter(i => i.baseId === baseId);
+            const porAno = {
+                1: inscritosNaBase.filter(i => i.ano === 1).length,
+                2: inscritosNaBase.filter(i => i.ano === 2).length,
+                3: inscritosNaBase.filter(i => i.ano === 3).length,
+            };
+            return {
+                total: inscritosNaBase.length,
+                porAno,
+                vagasRestantes: {
+                    1: COTAS[1] - porAno[1],
+                    2: COTAS[2] - porAno[2],
+                    3: COTAS[3] - porAno[3],
+                }
+            };
+        }
+
+        function renderStudentBases() {
+            const grid = document.getElementById('bases-grid');
+            grid.innerHTML = '';
+            
+            const inscricaoFeita = getInscricaoAtual();
+
+            BASES_CONFIG.forEach(base => {
+                const vagas = getVagasPorBase(base.id);
+                const temVagaAno = vagas.vagasRestantes[currentUser.ano] > 0;
+                const baseLotada = vagas.total >= LIMITE_TOTAL_BASE;
+                const isSelected = inscricaoFeita && inscricaoFeita.baseId === base.id;
+                
+                let cardClass = 'base-card';
+                let btnHtml = '';
+
+                if (isSelected) {
+                    cardClass += ' selected';
+                    btnHtml = `<button class="btn btn-secondary" disabled>✅ Selecionada</button>`;
+                } else if (inscricaoFeita) {
+                    cardClass += ' unavailable';
+                    btnHtml = `<button class="btn btn-outline" disabled>Você já escolheu outra</button>`;
+                } else if (baseLotada) {
+                    cardClass += ' unavailable';
+                    btnHtml = `<button class="btn btn-outline" disabled>Base Lotada</button>`;
+                } else if (!temVagaAno) {
+                    cardClass += ' unavailable';
+                    btnHtml = `<button class="btn btn-outline" disabled>Esgotado p/ ${currentUser.ano}º Ano</button>`;
+                } else {
+                    btnHtml = `<button class="btn btn-primary" id="btn-select-${base.id}">Selecionar Base</button>`;
+                }
+
+                const card = document.createElement('div');
+                card.className = cardClass;
+                card.innerHTML = `
+                    <div class="base-card-header">
+                        <h3>${base.nome}</h3>
+                        <div style="font-size: 0.9rem; opacity: 0.9;">${base.docente}</div>
+                    </div>
+                    <div class="base-card-body">
+                        <div class="cotas-grid">
+                            <div class="cota-item ${vagas.vagasRestantes[1] <= 0 ? 'esgotada' : 'disponivel'}">
+                                1º Ano <strong>${vagas.vagasRestantes[1]}/${COTAS[1]}</strong>
+                            </div>
+                            <div class="cota-item ${vagas.vagasRestantes[2] <= 0 ? 'esgotada' : 'disponivel'}">
+                                2º Ano <strong>${vagas.vagasRestantes[2]}/${COTAS[2]}</strong>
+                            </div>
+                            <div class="cota-item ${vagas.vagasRestantes[3] <= 0 ? 'esgotada' : 'disponivel'}">
+                                3º Ano <strong>${vagas.vagasRestantes[3]}/${COTAS[3]}</strong>
+                            </div>
+                        </div>
+                        <div style="margin-top: auto;">${btnHtml}</div>
+                    </div>
+                `;
+                grid.appendChild(card);
+                
+                if(!isSelected && !inscricaoFeita && !baseLotada && temVagaAno) {
+                    document.getElementById(`btn-select-${base.id}`).onclick = () => selectBase(base.id);
+                }
+            });
+        }
+
+        function updateUserStatus() {
+             const inscricao = getInscricaoAtual();
+             if (inscricao) {
+                const base = BASES_CONFIG.find(b => b.id === inscricao.baseId);
+                document.getElementById('user-status').textContent = `✅ Inscrita na ${base.nome}`;
+                document.getElementById('selection-message').classList.remove('hidden');
+                document.getElementById('selection-message').innerHTML = `<div>Você já está inscrita na <strong>${base.nome}</strong>.<br><small>Fale com a coordenação se precisar alterar.</small></div>`;
+            } else {
+                document.getElementById('user-status').textContent = 'Selecione sua base abaixo';
+                document.getElementById('selection-message').classList.add('hidden');
+            }
+        }
+
+        window.selectBase = function(baseId) {
+            if (getInscricaoAtual()) return;
+
+            const novaInscricao = {
+                matricula: currentUser.matricula,
+                nome: currentUser.nome,
+                ano: currentUser.ano,
+                baseId: baseId,
+                dataSelecao: new Date().toISOString()
+            };
+            
+            saveInscricao(novaInscricao);
+        }
+
+        window.removeInscricao = function(matricula) {
+            if(confirm('Tem certeza que deseja remover esta estudante da base? A vaga será liberada imediatamente.')) {
+                deleteInscricao(matricula);
+            }
+        }
+
+        document.getElementById('login-form').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const matInput = document.getElementById('matricula-input').value.trim();
+            const alunaEncontrada = DATABASE_ALUNAS.find(a => a.matricula === matInput);
+
+            if (alunaEncontrada) {
+                currentUser = alunaEncontrada;
+                document.getElementById('login-error').classList.add('hidden');
+                document.getElementById('user-avatar').textContent = currentUser.nome.charAt(0);
+                document.getElementById('user-name-display').innerHTML = `${currentUser.nome} <span class="ano-badge ano-${currentUser.ano}">${currentUser.ano}º Ano</span>`;
+                
+                showScreen('student-screen');
+                updateUserStatus();
+                renderStudentBases();
+            } else {
+                document.getElementById('login-error').textContent = "Matrícula não encontrada. Tente: 12345, 23456, 34567 ou 45678.";
+                document.getElementById('login-error').classList.remove('hidden');
+            }
+        });
+
+        function renderAdminScreen() {
+            document.getElementById('admin-total').textContent = inscricoes.length;
+            const select = document.getElementById('filtro-base');
+            if(select.options.length <= 1) {
+                BASES_CONFIG.forEach(b => select.innerHTML += `<option value="${b.id}">${b.nome}</option>`);
+            }
+            renderAdminTable();
+        }
+
+        function renderAdminTable() {
+            const filtroBase = document.getElementById('filtro-base').value;
+            const tbody = document.getElementById('students-table');
+            const emptyMsg = document.getElementById('empty-msg');
+            
+            let lista = [...inscricoes].sort((a, b) => {
+                if (a.baseId !== b.baseId) return a.baseId - b.baseId;
+                if (a.ano !== b.ano) return a.ano - b.ano;
+                return a.nome.localeCompare(b.nome);
+            });
+
+            if (filtroBase) lista = lista.filter(i => i.baseId == filtroBase);
+
+            if (lista.length === 0) {
+                tbody.innerHTML = '';
+                emptyMsg.classList.remove('hidden');
+                return;
+            }
+
+            emptyMsg.classList.add('hidden');
+            tbody.innerHTML = lista.map((inscrito) => {
+                const base = BASES_CONFIG.find(b => b.id === inscrito.baseId);
+                const data = new Date(inscrito.dataSelecao);
+                return `
+                    <tr>
+                        <td><span style="font-weight:bold; color:var(--verde-ifb)">${base.nome}</span></td>
+                        <td><span class="ano-badge ano-${inscrito.ano}">${inscrito.ano}º</span></td>
+                        <td>${inscrito.matricula}</td>
+                        <td>${inscrito.nome}</td>
+                        <td>${data.toLocaleDateString('pt-BR')} ${data.toLocaleTimeString('pt-BR').slice(0,5)}</td>
+                        <td><button class="btn btn-danger" style="padding: 0.4rem 0.8rem; font-size: 0.75rem; width: auto;" onclick="removeInscricao('${inscrito.matricula}')">Remover</button></td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function exportCSV() {
+            let csvContent = "Base;Docente;Ano;Matricula;Nome da Estudante;Data;Hora\n";
+            const listaOrdenada = [...inscricoes].sort((a, b) => {
+                if (a.baseId !== b.baseId) return a.baseId - b.baseId;
+                if (a.ano !== b.ano) return a.ano - b.ano;
+                return a.nome.localeCompare(b.nome);
+            });
+            listaOrdenada.forEach(row => {
+                const base = BASES_CONFIG.find(b => b.id === row.baseId);
+                const dataObj = new Date(row.dataSelecao);
+                csvContent += [base.nome, base.docente, row.ano + "º Ano", row.matricula, row.nome, dataObj.toLocaleDateString('pt-BR'), dataObj.toLocaleTimeString('pt-BR')].join(";") + "\n";
+            });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(new Blob(["\ufeff" + csvContent], { type: 'text/csv;charset=utf-8;' }));
+            link.download = `IFB_Backup_${new Date().toISOString().slice(0,10)}.csv`;
+            link.click();
+        }
+
+        window.resetSystem = function() {
+            if (confirm("⚠️ ATENÇÃO: Isso apagará TODOS os dados do servidor. O download iniciará antes. Confirma?")) {
+                exportCSV();
+                setTimeout(() => {
+                    deleteAllData();
+                    alert("Sistema resetado.");
+                }, 1000);
+            }
+        }
+
+        document.getElementById('btn-logout').addEventListener('click', () => { currentUser = null; document.getElementById('matricula-input').value = ''; showScreen('login-screen'); });
+        document.getElementById('btn-admin-logout').addEventListener('click', () => showScreen('login-screen'));
+        
+        document.getElementById('btn-admin-login').addEventListener('click', () => { document.getElementById('admin-modal').classList.remove('hidden'); });
+        document.getElementById('btn-cancel-admin').addEventListener('click', () => { document.getElementById('admin-modal').classList.add('hidden'); });
+        document.getElementById('admin-form').addEventListener('submit', (e) => {
+            e.preventDefault();
+            if (document.getElementById('admin-password').value === ADMIN_PASSWORD) {
+                document.getElementById('admin-modal').classList.add('hidden');
+                document.getElementById('admin-password').value = '';
+                showScreen('admin-screen');
+                renderAdminScreen();
+            } else {
+                document.getElementById('admin-error').classList.remove('hidden');
+            }
+        });
+
+        document.getElementById('filtro-base').addEventListener('change', renderAdminTable);
+        document.getElementById('btn-export').addEventListener('click', exportCSV);
+        document.getElementById('btn-reset').addEventListener('click', resetSystem);
+
+        function showScreen(screenId) {
+            document.querySelectorAll('#login-screen, #student-screen, #admin-screen').forEach(el => el.classList.add('hidden'));
+            document.getElementById(screenId).classList.remove('hidden');
+            window.scrollTo(0,0);
+        }
+
+        // INICIA ESCUTA DO BANCO
+        startListeningToDatabase();
+
+    </script>
+</body>
+</html>
