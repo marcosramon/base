@@ -2,7 +2,7 @@
 
 // 1. Configuração das Cotas
 export const COTAS = { 1: 10, 2: 6, 3: 4 };
-export const LIMITE_TOTAL_BASE = 19;
+export const LIMITE_TOTAL_BASE = 20;
 
 // =========================================================================
 // 2. LISTA DE BASES E DOCENTES
