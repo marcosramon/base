@@ -1,8 +1,8 @@
 // DADOS.JS - Arquivo de dados do sistema
 
 // 1. Configuração das Cotas
-export const COTAS = { 1: 10, 2: 6, 3: 4 };
-export const LIMITE_TOTAL_BASE = 20;
+export const COTAS = { 1: 10, 2: 7, 3: 4 };
+export const LIMITE_TOTAL_BASE = 21;
 
 // =========================================================================
 // 2. LISTA DE BASES E DOCENTES
