@@ -169,7 +169,9 @@
                 </div>
                 <div class="stat-card" style="display: flex; flex-direction: column; justify-content: center; gap: 0.5rem;">
                     <button id="btn-open-pending" class="btn btn-aviso">📋 Ver Pendentes</button>
-                    <button id="btn-export" class="btn btn-primary">📥 Excel (Inscritos)</button>
+                    <button id="btn-export" class="btn btn-primary">📥 Excel (Geral)</button>
+                    <button id="btn-export-visual" class="btn btn-outline" style="border: 2px solid var(--verde-ifb); color: var(--verde-ifb);">📑 Excel (Por Salas)</button>
+                    
                     <button id="btn-reset" class="btn btn-danger" style="font-size: 0.9rem;">⚠️ Resetar Sistema</button>
                 </div>
             </div>
@@ -290,11 +292,9 @@
         const db = getDatabase(app);
 
         // ============================================
-        // SENHAS E SEGURANÇA (OBFUSCAÇÃO)
+        // SEGURANÇA
         // ============================================
-        // ADMIN_PASSWORD = "ifb2026yyz" (Base64)
         const ADMIN_HASH = "aWZiMjAyNnl5eg==";
-        // RESET_PASSWORD = "fire" (Base64)
         const RESET_HASH = "ZmlyZQ=="; 
 
         // ESTADO GLOBAL
@@ -590,6 +590,38 @@
             link.click();
         }
 
+        // ============================================
+        // NOVA FUNÇÃO: EXPORTAR POR COLUNAS (VISUAL)
+        // ============================================
+        window.exportVisualCSV = () => {
+            const basesMap = {};
+            let maxLinhas = 0;
+
+            BASES_CONFIG.forEach(b => {
+                const alunosNaBase = inscricoes
+                    .filter(i => i.baseId === b.id)
+                    .sort((a, b) => a.nome.localeCompare(b.nome));
+                
+                basesMap[b.id] = alunosNaBase.map(a => `${a.nome} (${a.ano}º)`);
+                
+                if (basesMap[b.id].length > maxLinhas) maxLinhas = basesMap[b.id].length;
+            });
+
+            let csvContent = BASES_CONFIG.map(b => b.nome).join(";") + "\n";
+            csvContent += BASES_CONFIG.map(b => `Docente: ${b.docente}`).join(";") + "\n";
+            csvContent += BASES_CONFIG.map(b => "").join(";") + "\n"; 
+
+            for (let i = 0; i < maxLinhas; i++) {
+                const linha = BASES_CONFIG.map(b => basesMap[b.id][i] || "");
+                csvContent += linha.join(";") + "\n";
+            }
+
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(new Blob(["\ufeff" + csvContent], { type: 'text/csv;charset=utf-8;' }));
+            link.download = `LISTAS_POR_SALA_${new Date().toISOString().slice(0,10)}.csv`;
+            link.click();
+        }
+
         window.resetSystem = function() {
             const senhaConfirmacao = prompt("⚠️ ZONA DE PERIGO ⚠️\n\nEsta ação apagará TODOS os dados. Digite a senha de reset:");
             if (senhaConfirmacao === null) return;
@@ -654,6 +686,7 @@
 
         document.getElementById('filtro-base').addEventListener('change', renderAdminTable);
         document.getElementById('btn-export').addEventListener('click', exportCSV);
+        document.getElementById('btn-export-visual').addEventListener('click', exportVisualCSV);
         document.getElementById('btn-reset').addEventListener('click', resetSystem);
         
         // Novos Eventos Pendentes
